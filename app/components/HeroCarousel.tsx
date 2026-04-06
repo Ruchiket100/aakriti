@@ -41,14 +41,14 @@ export function HeroCarousel() {
 		center: {
 			opacity: 1,
 			x: 0,
-			transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as any },
+			transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
 		},
 		exit: (d: number) => ({
 			opacity: 0,
 			x: d > 0 ? -36 : 36,
 			transition: { duration: 0.3 },
 		}),
-	};
+	} as const;
 	const imgVar = {
 		enter: (d: number) => ({
 			opacity: 0,
@@ -59,7 +59,7 @@ export function HeroCarousel() {
 			opacity: 1,
 			scale: 1,
 			x: 0,
-			transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] as any },
+			transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
 		},
 		exit: (d: number) => ({
 			opacity: 0,
@@ -67,7 +67,7 @@ export function HeroCarousel() {
 			x: d > 0 ? -50 : 50,
 			transition: { duration: 0.35 },
 		}),
-	};
+	} as const;
 
 	return (
 		<section

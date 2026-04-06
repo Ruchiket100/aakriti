@@ -48,7 +48,7 @@ export function AnnouncementCarousel() {
 			opacity: 0,
 			transition: { duration: 0.25 },
 		}),
-	};
+	} as const;
 
 	return (
 		<div
