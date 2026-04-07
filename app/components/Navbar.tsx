@@ -18,17 +18,12 @@ export function Navbar() {
 			animate={{
 				boxShadow: scrolled ? "0 1px 0 #e5e7eb" : "0 1px 0 #f3f4f6",
 			}}
-			className="sticky top-0 z-50 bg-white w-full"
+			className="sticky top-0 z-50 bg-white/60 backdrop-blur-lg w-full"
 		>
-			<div className="max-w-7xl mx-auto px-6 lg:px-16 h-14 flex items-center justify-between">
+			<div className="max-w-7xl mx-auto px-6 lg:px-16 flex items-center justify-between">
 				<div className="flex items-center gap-2">
-					<span className="text-[12px] tracking-[0.25em] uppercase font-medium text-gray-900">
-						Aakriti
-					</span>
+					<img src="/logo.svg" className="h-24 -translate-y-2" />
 					<span className="w-px h-3 bg-gray-300" />
-					<span className="text-[12px] tracking-[0.15em] uppercase text-gray-400">
-						3D Studio
-					</span>
 				</div>
 
 				<nav className="hidden md:flex items-center gap-7">

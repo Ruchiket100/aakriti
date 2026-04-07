@@ -4,10 +4,17 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Product, tagColors } from "./data";
 import { StarIcon } from "./Icons";
+import { useOverlay } from "@/store/overlayStore";
+import ProductOverlay from "@/components/overlay/productOverlay";
 
 export function ProductCard({ p }: { p: Product }) {
 	const [hovered, setHovered] = useState(false);
 	const tag = tagColors[p.tag] ?? { bg: "#f3f4f6", text: "#374151" };
+
+	const { openOverlay } = useOverlay();
+	function handleOpen() {
+		openOverlay("product", <ProductOverlay product={p as any} />);
+	}
 
 	return (
 		<motion.div
@@ -15,6 +22,7 @@ export function ProductCard({ p }: { p: Product }) {
 			onHoverEnd={() => setHovered(false)}
 			animate={{ y: hovered ? -5 : 0 }}
 			transition={{ type: "spring", stiffness: 300, damping: 22 }}
+			onClick={handleOpen}
 			className="group relative flex flex-col bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer"
 		>
 			<div
@@ -22,7 +30,7 @@ export function ProductCard({ p }: { p: Product }) {
 				style={{ aspectRatio: "4/3" }}
 			>
 				<motion.img
-					src={p.img}
+					src={p.images[0]}
 					alt={p.name}
 					className="w-full h-full object-cover"
 					animate={{ scale: hovered ? 1.07 : 1 }}
@@ -46,14 +54,14 @@ export function ProductCard({ p }: { p: Product }) {
 			</div>
 			<div className="px-4 py-3">
 				<p className="text-[11px] text-gray-400 mb-0.5 uppercase tracking-wide">
-					{p.cat}
+					{p.category}
 				</p>
 				<p className="text-[13px] font-medium text-gray-900 leading-snug mb-1">
 					{p.name}
 				</p>
 				<div className="flex items-center justify-between">
 					<p className="text-[14px] font-medium text-gray-900">
-						{p.price}
+						₹{p.price.toLocaleString()}
 					</p>
 					<div className="flex items-center gap-1">
 						<StarIcon />
