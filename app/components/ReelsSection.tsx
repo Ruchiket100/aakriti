@@ -2,12 +2,44 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import { useOverlay } from "@/store/overlayStore";
+import { useReels } from "@/hooks/useQueries";
 import { reels, fadeUp, stagger } from "./data";
 import { SectionHeader } from "./SectionHeader";
+
+const DEFAULT_VIDEO = "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4";
+const DEFAULT_THUMBNAIL = "https://i.pinimg.com/736x/ef/4a/fb/ef4afb6c44b3ce31a3778e4409db8b2c.jpg";
 
 export function ReelsSection() {
 	const ref = useRef(null);
 	const inView = useInView(ref, { once: true, margin: "-60px" });
+	const { data: liveReels } = useReels();
+	const { openOverlay } = useOverlay();
+
+	const displayReels = liveReels && liveReels.length > 0 ? liveReels : reels;
+
+	function playReel(videoUrl?: string, label?: string) {
+		openOverlay(
+			"reel-player",
+			<div className="flex flex-col bg-gray-950 w-full max-w-[380px] mx-auto overflow-hidden rounded-2xl border border-white/10 shadow-2xl relative">
+				<div className="p-4 flex items-center justify-between border-b border-white/5 bg-gray-900/50">
+					<span className="text-[12px] font-semibold text-white/90 truncate max-w-[80%]">
+						{label ?? "Aakriti Reels"}
+					</span>
+				</div>
+				<div className="relative aspect-[9/16] bg-black">
+					<video
+						src={videoUrl || DEFAULT_VIDEO}
+						controls
+						autoPlay
+						loop
+						playsInline
+						className="w-full h-full object-cover"
+					/>
+				</div>
+			</div>,
+		);
+	}
 
 	return (
 		<section ref={ref} className="w-full bg-white py-16 px-6 lg:px-16">
@@ -29,9 +61,10 @@ export function ReelsSection() {
 						variants={stagger as any}
 						className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"
 					>
-						{reels.map((r, i) => (
+						{displayReels.map((r, i) => (
 							<motion.div
 								key={r.id}
+								onClick={() => playReel((r as any).video_url, r.label)}
 								variants={fadeUp as any}
 								whileHover={{ y: -4, scale: 1.02 }}
 								transition={{
@@ -43,7 +76,7 @@ export function ReelsSection() {
 								style={{ aspectRatio: "9/16" }}
 							>
 								<img
-									src="https://i.pinimg.com/736x/ef/4a/fb/ef4afb6c44b3ce31a3778e4409db8b2c.jpg"
+									src={(r as any).thumbnail_url || DEFAULT_THUMBNAIL}
 									alt={r.label}
 									className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
 								/>
@@ -89,7 +122,7 @@ export function ReelsSection() {
 											>
 												<path d="M12 21C12 21 3 14 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 13 5.08C14.09 3.81 15.76 3 17.5 3C20.58 3 23 5.42 23 8.5C23 14 14 21 12 21Z" />
 											</svg>
-											{r.likes}
+											{r.likes || "0"}
 										</span>
 										<span className="flex items-center gap-1 text-white/60 text-[9px]">
 											<svg
@@ -104,7 +137,7 @@ export function ReelsSection() {
 												<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
 												<circle cx="12" cy="12" r="3" />
 											</svg>
-											{r.views}
+											{r.views || "0"}
 										</span>
 									</div>
 								</div>

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import Link from "next/link";
 import { categories, fadeUp, stagger } from "./data";
 
 export function CategoryStrip() {
-	const [active, setActive] = useState<string | null>(null);
 	const ref = useRef(null);
 	const inView = useInView(ref, { once: true, margin: "-40px" });
 
@@ -21,49 +21,36 @@ export function CategoryStrip() {
 				className="flex items-stretch min-w-max max-w-7xl mx-auto px-6 lg:px-16"
 			>
 				{categories.map((c) => {
-					const isActive = active === c.id;
+					const targetHref =
+						c.label === "Custom Order"
+							? "/custom"
+							: `/shop?category=${encodeURIComponent(c.label)}`;
+
 					return (
-						<motion.button
-							key={c.id}
-							variants={fadeUp}
-							onClick={() => setActive(isActive ? null : c.id)}
-							whileHover={{ y: -1 }}
-							whileTap={{ scale: 0.97 }}
-							className="relative flex items-center gap-1 px-6 py-4 transition-colors"
-						>
+						<Link key={c.id} href={targetHref} className="flex select-none">
 							<motion.div
-								animate={{
-									background: isActive
-										? "#1a1a1a"
-										: "#f9fafb",
-									color: isActive ? "#fff" : "#6b7280",
-								}}
-								className="w-10 h-10 rounded-xl flex items-center justify-center text-[16px] font-medium transition-colors"
+								variants={fadeUp}
+								whileHover={{ y: -1 }}
+								whileTap={{ scale: 0.97 }}
+								className="relative flex items-center gap-1 px-6 py-4 transition-colors cursor-pointer"
 							>
-								{c.icon}
+								<div className="w-10 h-10 rounded-xl bg-gray-50 text-gray-500 flex items-center justify-center text-[16px] font-medium transition-colors hover:bg-gray-100 hover:text-gray-900">
+									{c.icon}
+								</div>
+								<div className="flex flex-col flex-start ml-2">
+									<span className="text-[11px] font-medium tracking-wide whitespace-nowrap text-gray-500 hover:text-gray-900">
+										{c.label}
+									</span>
+									<span className="text-[9px] text-gray-400 whitespace-nowrap">
+										{c.count}
+									</span>
+								</div>
 							</motion.div>
-							<motion.div className="flex flex-col flex-start">
-								<span
-									className="text-[11px] font-medium tracking-wide whitespace-nowrap"
-									style={{
-										color: isActive ? "#111" : "#6b7280",
-									}}
-								>
-									{c.label}
-								</span>
-								<span className="text-[9px] text-gray-400 whitespace-nowrap">
-									{c.count}
-								</span>
-							</motion.div>
-							<motion.div
-								layoutId="cat-line"
-								className="absolute bottom-0 left-4 right-4 h-[2px] rounded-full bg-gray-900"
-								animate={{ opacity: isActive ? 1 : 0 }}
-							/>
-						</motion.button>
+						</Link>
 					);
 				})}
 			</motion.div>
 		</section>
 	);
 }
+

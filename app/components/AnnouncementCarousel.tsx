@@ -2,15 +2,20 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useOffers } from "@/hooks/useQueries";
 import { announcements } from "./data";
 import { ArrowRight } from "./Icons";
 
 export function AnnouncementCarousel() {
+	const { data: liveOffers } = useOffers();
+	const displayAnnouncements =
+		liveOffers && liveOffers.length > 0 ? liveOffers : announcements;
+
 	const [current, setCurrent] = useState(0);
 	const [paused, setPaused] = useState(false);
 	const [direction, setDirection] = useState(1);
 	const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-	const total = announcements.length;
+	const total = displayAnnouncements.length;
 
 	const goTo = useCallback(
 		(idx: number, dir: number) => {
@@ -19,6 +24,7 @@ export function AnnouncementCarousel() {
 		},
 		[total],
 	);
+
 
 	useEffect(() => {
 		if (paused) {
@@ -34,7 +40,7 @@ export function AnnouncementCarousel() {
 		};
 	}, [paused, total]);
 
-	const slide = announcements[current];
+	const slide = displayAnnouncements[current];
 
 	const variants = {
 		enter: (d: number) => ({ x: d > 0 ? 30 : -30, opacity: 0 }),
@@ -142,7 +148,7 @@ export function AnnouncementCarousel() {
 			</button>
 
 			<div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
-				{announcements.map((_, i) => (
+				{displayAnnouncements.map((_, i) => (
 					<motion.button
 						key={i}
 						onClick={() => goTo(i, i > current ? 1 : -1)}

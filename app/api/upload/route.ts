@@ -1,17 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase";
 
-async function isAuthed() {
-	const cookieStore = await cookies();
-	return cookieStore.get("admin_session")?.value === "authenticated";
-}
-
 export async function POST(req: NextRequest) {
-	if (!(await isAuthed())) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-	}
-
 	try {
 		const formData = await req.formData();
 		const file = formData.get("file") as File;
@@ -24,10 +14,10 @@ export async function POST(req: NextRequest) {
 		const arrayBuffer = await file.arrayBuffer();
 		const buffer = Buffer.from(arrayBuffer);
 
-		// Generate a clean, unique file path
+		// Generate a clean, unique file path under custom-uploads/ folder
 		const fileExt = file.name.split(".").pop();
 		const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-		const filePath = `products/${fileName}`;
+		const filePath = `custom-uploads/${fileName}`;
 
 		// Upload the file to Supabase storage bucket 'aakriti-media'
 		const bucketName = "aakriti-media";
@@ -42,14 +32,14 @@ export async function POST(req: NextRequest) {
 			throw error;
 		}
 
-		// Get the public URL of the uploaded asset
+		// Get the public URL of the uploaded custom asset
 		const { data: { publicUrl } } = supabaseAdmin.storage
 			.from(bucketName)
 			.getPublicUrl(filePath);
 
 		return NextResponse.json({ url: publicUrl });
 	} catch (err: any) {
-		console.error("Upload handler error:", err);
+		console.error("Public media upload error:", err);
 		return NextResponse.json({ error: err.message }, { status: 500 });
 	}
 }

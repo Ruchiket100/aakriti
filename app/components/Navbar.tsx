@@ -2,10 +2,24 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { useCart } from "@/store/cartStore";
+import { useOverlay } from "@/store/overlayStore";
+import CartOverlay from "@/components/overlay/cartOverlay";
+
+const NAV_ITEMS = [
+	{ label: "Shop", href: "/shop" },
+	{ label: "Collections", href: "/shop" },
+	{ label: "Custom Order", href: "/custom" },
+	{ label: "About", href: "/#about" },
+	{ label: "Contact", href: "/#contact" },
+];
 
 export function Navbar() {
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [scrolled, setScrolled] = useState(false);
+	const { totalItems } = useCart();
+	const { openOverlay } = useOverlay();
 
 	useEffect(() => {
 		const onScroll = () => setScrolled(window.scrollY > 10);
@@ -27,21 +41,15 @@ export function Navbar() {
 				</div>
 
 				<nav className="hidden md:flex items-center gap-7">
-					{[
-						"Shop",
-						"Collections",
-						"Custom Order",
-						"About",
-						"Contact",
-					].map((item) => (
-						<motion.a
-							key={item}
-							href="#"
-							whileHover={{ y: -1 }}
-							className="text-[12px] tracking-wide text-gray-500 hover:text-gray-900 transition-colors"
-						>
-							{item}
-						</motion.a>
+					{NAV_ITEMS.map((item) => (
+						<Link key={item.label} href={item.href} passHref legacyBehavior>
+							<motion.a
+								whileHover={{ y: -1 }}
+								className="text-[12px] tracking-wide text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
+							>
+								{item.label}
+							</motion.a>
+						</Link>
 					))}
 				</nav>
 
@@ -67,9 +75,10 @@ export function Navbar() {
 						</svg>
 					</motion.button>
 					<motion.button
+						onClick={() => openOverlay("cart", <CartOverlay />)}
 						whileHover={{ scale: 1.1 }}
 						whileTap={{ scale: 0.9 }}
-						className="relative text-gray-500 hover:text-gray-900 transition-colors"
+						className="relative text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -86,17 +95,21 @@ export function Navbar() {
 							<line x1="3" y1="6" x2="21" y2="6" />
 							<path d="M16 10a4 4 0 01-8 0" />
 						</svg>
-						<span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-gray-900 rounded-full text-white text-[8px] flex items-center justify-center font-medium">
-							2
-						</span>
+						{totalItems > 0 && (
+							<span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-gray-900 rounded-full text-white text-[8px] flex items-center justify-center font-medium">
+								{totalItems}
+							</span>
+						)}
 					</motion.button>
-					<motion.button
-						whileHover={{ scale: 1.05 }}
-						whileTap={{ scale: 0.97 }}
-						className="hidden sm:flex items-center gap-1.5 text-[11px] font-medium px-4 py-2 bg-gray-900 text-white rounded-full"
-					>
-						Custom Order
-					</motion.button>
+					<Link href="/custom">
+						<motion.button
+							whileHover={{ scale: 1.05 }}
+							whileTap={{ scale: 0.97 }}
+							className="hidden sm:flex items-center gap-1.5 text-[11px] font-medium px-4 py-2 bg-gray-900 text-white rounded-full cursor-pointer"
+						>
+							Custom Order
+						</motion.button>
+					</Link>
 					<button
 						onClick={() => setMenuOpen(!menuOpen)}
 						className="md:hidden text-gray-500"
@@ -138,20 +151,15 @@ export function Navbar() {
 						transition={{ duration: 0.25 }}
 						className="md:hidden bg-white border-t border-gray-100 px-6 overflow-hidden"
 					>
-						{[
-							"Shop",
-							"Collections",
-							"Custom Order",
-							"About",
-							"Contact",
-						].map((item) => (
-							<a
-								key={item}
-								href="#"
-								className="block py-3 text-[13px] text-gray-600 border-b border-gray-50"
+						{NAV_ITEMS.map((item) => (
+							<Link
+								key={item.label}
+								href={item.href}
+								onClick={() => setMenuOpen(false)}
+								className="block py-3 text-[13px] text-gray-600 border-b border-gray-50 hover:text-gray-900 transition-colors"
 							>
-								{item}
-							</a>
+								{item.label}
+							</Link>
 						))}
 					</motion.div>
 				)}

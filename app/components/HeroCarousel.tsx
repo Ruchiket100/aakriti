@@ -2,15 +2,41 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useProducts } from "@/hooks/useQueries";
 import { heroSlides } from "./data";
 import { ArrowRight } from "./Icons";
 
 export function HeroCarousel() {
+	const { data: liveProducts } = useProducts();
+
+	// Filter for products marked to show in carousel
+	const liveCarouselProducts = liveProducts ? liveProducts.filter((p) => p.show_in_carousel) : [];
+
+	// Map them to the slide format
+	const mappedSlides = liveCarouselProducts.map((p) => ({
+		id: p.id,
+		category: p.category,
+		tag: p.tag || "Featured",
+		name: p.name,
+		subtitle: p.carousel_subtitle || p.category,
+		desc: p.carousel_desc || p.description || "",
+		price: `₹${p.price.toLocaleString("en-IN")}`,
+		cta: p.carousel_cta || "Shop Now",
+		img: p.images?.[0] || "https://i.pinimg.com/736x/ef/4a/fb/ef4afb6c44b3ce31a3778e4409db8b2c.jpg",
+		stat: [
+			{ v: p.size || "Standard", l: "Size" },
+			{ v: p.material || "PLA", l: "Material" },
+			{ v: `${p.rating || 5.0}★`, l: "Rating" }
+		]
+	}));
+
+	const displaySlides = mappedSlides.length > 0 ? mappedSlides : heroSlides;
+
 	const [current, setCurrent] = useState(0);
 	const [paused, setPaused] = useState(false);
 	const [direction, setDirection] = useState(1);
 	const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-	const total = heroSlides.length;
+	const total = displaySlides.length;
 
 	const goTo = useCallback(
 		(idx: number, dir: number) => {
@@ -34,7 +60,7 @@ export function HeroCarousel() {
 		};
 	}, [paused, total]);
 
-	const slide = heroSlides[current];
+	const slide = displaySlides[current];
 
 	const textVar = {
 		enter: (d: number) => ({ opacity: 0, x: d > 0 ? 36 : -36 }),
@@ -182,7 +208,7 @@ export function HeroCarousel() {
 							</svg>
 						</motion.button>
 						<div className="flex gap-1.5">
-							{heroSlides.map((_, i) => (
+							{displaySlides.map((_, i) => (
 								<motion.button
 									key={i}
 									onClick={() =>

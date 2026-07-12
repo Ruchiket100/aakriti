@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
 	const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
 	const isLoginPage = req.nextUrl.pathname === "/admin/login";
 	const session = req.cookies.get("admin_session")?.value;
@@ -11,4 +11,5 @@ export function middleware(req: NextRequest) {
 	return NextResponse.next();
 }
 
-export const config = { matcher: ["/admin/:path*"] };
+// Support both '/admin' and all its subfolders/pages
+export const config = { matcher: ["/admin", "/admin/:path*"] };
